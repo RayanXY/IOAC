@@ -1,2 +1,5 @@
 #Ignore this type of file
-
+*.in
+*.out
+*/bin
+*/build
