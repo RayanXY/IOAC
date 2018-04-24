@@ -1,7 +1,7 @@
 CC = g++
-CPPFLAG = -std=c++11
-IMPORTS = ./src/main.cpp ./include/pipeline.h
-TARGET = ./bin/main
+CPPFLAG = -Wall -I include
 
 main: $(OBJS)
-	$(CC) $(CPPFLAG) $(IMPORTS) -o $(TARGET)
+	$(CC) -c -o build/pipeline.o src/pipeline.cpp $(CPPFLAG)
+	$(CC) -c -o build/main.o src/main.cpp $(CPPFLAG)
+	$(CC) -o bin/main build/main.o build/pipeline.o $(CPPFLAG) 

@@ -5,12 +5,13 @@
 
 int main (int argc, char * argv[]) {
 
-	std::vector <std::string> instructions, stage_if, stage_id;
-	std::vector <std::string> stage_ex, stage_mem, stage_wb;
-
-	int cycle = 0, worst_case = 1 + 4 * (instructions.size ());
-
+	std::vector <std::string> instructions;
+	
 	readInstructions (instructions);
+	int cycle = 0;
+	int worst_case = 1 + 4 * (instructions.size ());
+
+	std::vector <std::string> stage_if, stage_id, stage_ex, stage_mem, stage_wb;
 
 	for (int i = 0; i < worst_case; i++) {
 		stage_if.push_back ("0");
@@ -23,5 +24,7 @@ int main (int argc, char * argv[]) {
 	pipeline (stage_if, stage_id, stage_ex, stage_mem, stage_wb, instructions, cycle);
 
 	printStages (stage_if, stage_id, stage_ex, stage_mem, stage_wb, cycle);
+
+	return 0;
 
 }

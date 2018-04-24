@@ -4,7 +4,7 @@
  * This function will store in a vector of strings the instructions give in file.
  * @param instructions
  */
-void readInstructions (std::vector <std::string> instructions) {
+void readInstructions (std::vector <std::string> &instructions) {
 
 	std::string instruction;
 
@@ -18,8 +18,8 @@ void readInstructions (std::vector <std::string> instructions) {
  * This function will change the dependencies to be check by the next
  * instruction, assuring that will be no data conflicts.
  */
-void changeDependencies (std::vector <std::string> dependencyRegisters, 
-						 const std::string newRegister) {
+void changeDependencies (std::vector <std::string> &dependencyRegisters, 
+						 const std::string &newRegister) {
 
 	for (int i = 3; i > 0; i--) {
 		dependencyRegisters[i] = dependencyRegisters[i-1];
@@ -31,11 +31,11 @@ void changeDependencies (std::vector <std::string> dependencyRegisters,
 /**
  * This function will return the cycle that will be executed in the next line.
  */
-int dependencies (const int cycle, 
+int dependencies (const int &cycle, 
 				  std::vector <std::string> &dependencyRegisters,
-				  const std::string register_2,
-				  const std::string register_3,
-				  const std::string register_aux = "0") {
+				  const std::string &register_2,
+				  const std::string &register_3,
+				  const std::string &register_aux = "0") {
 
 	for (int i = 0; i < 4; i++) {
 
@@ -57,14 +57,14 @@ int dependencies (const int cycle,
 /**
  * This function will assign each instruction on its stages' vector.
  */
-void stages (std::vector <std::string> stage_if,
-			 std::vector <std::string> stage_id,
-			 std::vector <std::string> stage_ex,
-			 std::vector <std::string> stage_mem,
-			 std::vector <std::string> stage_wb,
+void stages (std::vector <std::string> &stage_if,
+			 std::vector <std::string> &stage_id,
+			 std::vector <std::string> &stage_ex,
+			 std::vector <std::string> &stage_mem,
+			 std::vector <std::string> &stage_wb,
 			 const std::string instruction,
-			 const int cycle,
-			 const int i) {
+			 const int &cycle,
+			 const int &i) {
 
 	stage_if[cycle - i] = instruction;
 	stage_id[cycle + 1 - i] = instruction;
@@ -77,21 +77,19 @@ void stages (std::vector <std::string> stage_if,
 /**
  * This function will simulate the pipeline and handle the operations and dependencies. 
  */
-void pipeline (std::vector <std::string> stage_if,
-			   std::vector <std::string> stage_id,
-			   std::vector <std::string> stage_ex,
-			   std::vector <std::string> stage_mem,
-			   std::vector <std::string> stage_wb, 
+void pipeline (std::vector <std::string> &stage_if,
+			   std::vector <std::string> &stage_id,
+			   std::vector <std::string> &stage_ex,
+			   std::vector <std::string> &stage_mem,
+			   std::vector <std::string> &stage_wb, 
 			   std::vector <std::string> instructions,
-			   int cycle) {
+			   int &cycle) {
 
-	std::string instruction, label, operation;
-	std::string register_aux, no_dependency = " ";
-	std::string rest, register_1 = " ", register_2, register_3;
-	std::vector <std::string> dependencyRegisters (4);
-	std::size_t found;
-	bool pass_label = false;
+	std::string instruction, label, operation, rest, register_1 = " ", register_2, register_3, register_aux, no_dependency = " ";
 	int size = instructions.size ();
+	std::vector <std::string> dependencyRegisters (4);
+	bool pass_label = false;
+	std::size_t found;
 
 	for (int i = 0; i < size; i++, cycle++) {
 
@@ -101,15 +99,15 @@ void pipeline (std::vector <std::string> stage_if,
 		if (found != std::string::npos) {
 			operation = instruction.substr (0, found);
 		} else {
-			found = instruction.find_first_of (":");
+			found = instruction.find_first_of (" ");
 			operation = instruction.substr (0, found);
 			rest = instruction.substr (found + 1);
 		}
 
 		if (operation.compare (label) == 0) {
 			pass_label = false;
-		} else if ((operation.compare ("add") == 0  || operation.compare("sub") == 0  
-			     && pass_label == false)){
+		} else if ((operation.compare ("add") == 0  || operation.compare("sub") == 0)  
+			     && pass_label == false){
 
 			found = rest.find_last_of (" ");
 			register_3 = rest.substr (found + 1);
@@ -123,8 +121,8 @@ void pipeline (std::vector <std::string> stage_if,
 				    instruction, cycle, i);
 			register_1 = register_aux;
 
-		} else if ((operation.compare ("beq") == 0  || operation.compare("bne") == 0  
-			     && pass_label == false)) {
+		} else if ((operation.compare ("beq") == 0  || operation.compare("bne") == 0)  
+			     && pass_label == false) {
 
 			found = rest.find_first_of (",");
 			register_2 = rest.substr (0, found);
@@ -203,7 +201,7 @@ void printStages (std::vector <std::string> stage_if,
 		std::cout << "IF:     " << stage_if[i] << std::endl;
 		std::cout << "ID:     " << stage_id[i] << std::endl;
 		std::cout << "EX:     " << stage_ex[i] << std::endl;
-		std::cout << "MEM:  " << stage_mem[i] << std::endl;
+		std::cout << "MEM:    " << stage_mem[i] << std::endl;
 		std::cout << "WB:     " << stage_wb[i] << std::endl;
 		std::cout << "-------------------------------------------------------" << std::endl;
 	}
