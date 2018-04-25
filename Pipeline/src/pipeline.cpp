@@ -136,6 +136,7 @@ void pipeline (std::vector <std::string> &stage_if,
 				    instruction, cycle, i);
 			pass_label = true;
 			register_1 = no_dependency;
+ 
 
 		} else if (operation.compare ("lw") == 0 && pass_label == false) {
 
