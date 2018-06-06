@@ -1,7 +1,12 @@
 #include <iostream>
+#include "./cache.cpp"
 
 int main (int argc, char * argv[]) {
 
-	return 0;
+	std::string config = "./data/config.txt";
 
+	Cache cache (config);
+
+	cache.showConfig ();
+	
 }
