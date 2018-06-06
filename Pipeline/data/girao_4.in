@@ -1,0 +1,7 @@
+add $t0, $t1, $v0
+add $t2, $t3, $t4
+add $t5, $t6, $t7
+sub $t8, $t9, $t10
+lw $t5, 4($t4)
+sw $s8, 0($t4)
+lw $s8, 8($s5)

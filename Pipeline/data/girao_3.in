@@ -1,0 +1,10 @@
+add $t0, $t1, $v0
+add $t2, $t3, $t4
+add $t5, $t6, $t7
+sub $t8, $t9, $t10
+j SETE
+lw $t4, 4($s0)
+SETE:
+add $t10, $t7, $t8
+sw $t4, 0($t9)
+lw $t4, 8($t11)
