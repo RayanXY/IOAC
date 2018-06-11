@@ -16,7 +16,9 @@ class Memory {
 			std::vector<int> aux;
 
 			for (int i = 0; i < (memory.wordsPerBlocks * memory.memorySize); i++){
-				for (int j = 0; j < memory.wordsPerBlocks; j++, i++) aux.push_back (i);
+				for (int j = 0; j < memory.wordsPerBlocks; j++, i++){
+					aux.push_back (i);
+				}
 				memory.elements.push_back (aux);
 				aux.clear ();
 				i--;
@@ -27,7 +29,7 @@ class Memory {
 		void showMemory (Memory &memory) {
 
 			std::cout << ">>> MEMÓRIA PRINCIPAL" << std::endl;
-			std::cout << "Bloco" << "\t" << "Endereço" << std::endl;
+			std::cout << "Bloco\tEndereço" << std::endl;
 
 			for (size_t i = 0; i < memory.elements.size (); i++){
 				for (int j = 0; j < memory.wordsPerBlocks; j++){
@@ -54,7 +56,9 @@ class Cache : public Memory {
 			std::vector<int> aux;
 
 			for (int i = 0; i < (cache.wordsPerBlocks * cache.lines); i++){
-				for (int j = 0; j < cache.wordsPerBlocks; j++, i++)	aux.push_back (-1);
+				for (int j = 0; j < cache.wordsPerBlocks; j++, i++){
+					aux.push_back (-1);
+				}
 				cache.elements.push_back (aux);
 				aux.clear ();
 				i--;
@@ -65,7 +69,7 @@ class Cache : public Memory {
 		void showCache (Cache &cache, Memory &memory) {
 
 			std::cout << "CACHE L1" << std::endl;
-			std::cout << "Linha\tBloco\tEndereço\tConteúdo\n";
+			std::cout << "Linha\tBloco\tEndereço"<< std::endl;
 
 			for (size_t i = 0; i < cache.elements.size (); i++){
 				for (int j = 0; j < cache.wordsPerBlocks; j++){
@@ -74,7 +78,7 @@ class Cache : public Memory {
 					block = cache.elements[i][j]/memory.wordsPerBlocks;
 					address = cache.elements[i][j];
 
-					std::cout << i << "\t" << block << "\t" << address << "\t\t" << memory.elements[block][address] << std::endl;
+					std::cout << i << "\t" << block << "\t" << address << std::endl;
 
 				}
 			}
@@ -164,6 +168,11 @@ class Cache : public Memory {
 		for (int i = 0; i < memory.wordsPerBlocks; i++) {
 			cache.elements[blockCache][i] = memory.elements[blockMemory][i];
 		}
+	}
+
+	void changeBlocks (Memory &memory, Cache &cache, int blockCache, int blockMemory, int content) {
+			cache.elements[blockCache][blockCache] = memory.elements[blockMemory][blockCache];
+			memory.elements[blockMemory][blockCache] = content;
 	}
 
 	bool findWord (Cache &cache, int word, int &block, int begin, int end) {
