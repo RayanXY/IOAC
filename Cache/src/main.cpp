@@ -6,13 +6,6 @@
 
 int main (int argc, char * argv[]) {
 
-	/// Variables
-	std::string instruction;
-	std::size_t found;
-	int word = 0, blockCache = 0, blockMemory = 0, rest = 0, 
-	sizeWay = 0, blockWay = 0, begin = 0, end = 0, blockCacheAux = 0;
-	bool state = false;
-
 	/// Reads the configuratio file
 	std::ifstream file;
 	file.open ("./data/config.txt");
@@ -20,14 +13,22 @@ int main (int argc, char * argv[]) {
 	/// Sets the parameters
 	Memory memory;
 	Cache cache;
-	file >> memory.wordsPerBlocks >> cache.lines >> memory.memorySize >>
-			memory.mapping >> memory.setSize >> memory.replacementPolicy;
 
+	file >> memory.wordsPerBlocks >> cache.lines >> 
+			memory.memorySize >> memory.mapping >> 
+			memory.setSize >> memory.replacementPolicy;
 	cache.wordsPerBlocks = memory.wordsPerBlocks;
 
 	/// Creates the objects
 	memory.createMemory (memory);
 	cache.createCache (cache);
+
+	/// Variables
+	std::string instruction;
+	std::size_t found;
+	int word = 0, blockCache = 0, blockMemory = 0, rest = 0, sizeWay = 0, 
+	blockWay = 0, begin = 0, end = 0, blockCacheAux = 0;
+	bool state = false;
 
 	/// Counter for LFU and LRU policy
 	std::vector<int> blockCacheSets (memory.setSize, 0);
