@@ -43,5 +43,3 @@ To run the program use the following code:
 `user@user-pc:~/Cache$ bin/simulator `
 
 This codes were made by RAYAN AVELINO.
-
-a

@@ -64,13 +64,7 @@ int main (int argc, char * argv[]) {
 					word = std::stoi (commandAux[1]);
 
 				}
-/*
-				/// If it finds it, splits the command
-				if (found != std::string::npos) {
-					word = std::stoi(instruction.substr (found + 1));
-					instruction = instruction.substr (0, found);
-				}
-*/
+
 				/// Reading the command
 				if (instruction.compare ("Read") == 0) {
 
@@ -133,11 +127,6 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}*/
 
 						blockMemory = word / memory.wordsPerBlocks;
 
@@ -218,12 +207,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr(found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 
 						if (instruction.compare ("Read") == 0) {
@@ -289,12 +273,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*						
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 
 						if (instruction.compare ("Read") == 0) {
@@ -382,12 +361,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 
 						if (instruction.compare ("Read") == 0) {
@@ -477,12 +451,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 						sizeWay = cache.lines / memory.setSize;
 						blockWay = blockMemory % memory.setSize;
@@ -564,12 +533,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*						
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 						sizeWay = cache.lines / memory.setSize;
 						blockWay = blockMemory % memory.setSize;
@@ -633,12 +597,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*						
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 						sizeWay = cache.lines / memory.setSize;
 						blockWay = blockMemory % memory.setSize;
@@ -724,12 +683,7 @@ int main (int argc, char * argv[]) {
 							word = std::stoi (commandAux[1]);
 
 						}
-/*						
-						if (found != std::string::npos) {
-							word = std::stoi(instruction.substr (found + 1));
-							instruction = instruction.substr (0, found);
-						}
-*/
+
 						blockMemory = word / memory.wordsPerBlocks;
 						sizeWay = cache.lines / memory.setSize;
 						blockWay = blockMemory % memory.setSize;

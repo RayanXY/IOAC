@@ -42,7 +42,6 @@ template <typename T> class Memory {
 	
 };
 
-
 template <typename T> class Cache : public Memory <T> {
 
 	public:
