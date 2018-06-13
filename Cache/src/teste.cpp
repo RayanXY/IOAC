@@ -1,9 +1,39 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iterator>
 #include <string>
+#include <vector>
 
 int main (int argc, char * argv[]) {
 
+	std::string instruction, command;
+	int a, b;
+
+	std::getline(std::cin, instruction);
+
+	//std::cout << "Entrada: " << instruction << std::endl;
+
+	std::istringstream buf(instruction);
+	std::istream_iterator <std::string> beg(buf), end;
+
+	std::vector<std::string> v (beg, end);
+
+	//std::cout << "v.size = " << v.size () << std::endl;	
+
+	command = v[0];
+	a = std::stoi (v[1]);
+/*
+	std::cout << "v[0] = " << v[0] << std::endl;
+	std::cout << "v[1] = " << v[1] << std::endl;
+	std::cout << "v[2] = " << v[2] << std::endl;
+
+*/
+	std::cout << command << std::endl;
+	std::cout << a << std::endl;
+	//std::cout << b << std::endl;
+
+/*
 	std::string instruction, aux;
 	int word = 0, content = 0;
 	std::size_t found;
@@ -96,5 +126,5 @@ while (std::getline (std::cin, instruction)) {
 		cache.showCache (cache, memory);
 		memory.showMemory (memory);
 	}
-
+*/
 }
