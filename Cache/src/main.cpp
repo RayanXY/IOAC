@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @author Rayan Avelino
+ * @copyright 2018 Rayan Avelino
+ */
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -5,758 +10,281 @@
 #include <string>
 #include <ctime>
 #include "../include/cache.h"
-
-int main (int argc, char * argv[]) {
-
-	/// Reads the configuratio file
-	std::ifstream file;
-	//file.open ("./data/Girao_DIRETO.txt");
-	//file.open ("./data/Girao_PARCIAL.txt");
-	file.open ("./data/Girao_TOTAL.txt");
-
-	/// Sets the parameters
-	Memory <int> memory;
-	Cache <int> cache;
-
-	file >> memory.wordsPerBlocks >> cache.lines >> 
-			memory.memorySize >> memory.mapping >> 
-			memory.setSize >> memory.replacementPolicy;
-
-	cache.wordsPerBlocks = memory.wordsPerBlocks;
-
-	/// Creates the objects
-	memory.createMemory (memory);
-	cache.createCache (cache);
-
-	/// Variables
-	std::string instruction, command;
-	std::size_t found;
-	int word = 0, content = 0, blockCache = 0, blockMemory = 0, rest = 0, sizeWay = 0, 
-	blockWay = 0, begin = 0, end = 0, blockCacheAux = 0;
-	bool state = false;
-
-	std::vector<std::string> commandAux;
-
-	/// Counter for LFU and LRU policy
-	std::vector<int> blockCacheSets (memory.setSize, 0);
-
-	/// Using the mapping informed
-	switch (memory.mapping) {
-		/// Directed-Mapped
-		case 1:
-			/// Gets the commando from the user
-			while (std::getline (std::cin, instruction)) {
-
-				/// Search for a space in the command
-				found = instruction.find (" ");
-
-				if (found != std::string::npos){
-
-					std::istringstream buf(instruction);
-					std::istream_iterator <std::string> beg(buf), end;
-
-					std::vector<std::string> commandAuxTemp (beg, end);
-
-					commandAux = commandAuxTemp;
-
-					instruction = commandAux[0];
-
-					word = std::stoi (commandAux[1]);
-
-				}
-
-				/// Reading the command
-				if (instruction.compare ("Read") == 0) {
-
-					blockCache = (word / memory.wordsPerBlocks) % cache.lines;
-					blockMemory = word / memory.wordsPerBlocks;
-					rest = word % memory.wordsPerBlocks;
-
-					if (cache.elements[blockCache][rest] == word) {
-						std::cout << "HIT - Linha " << blockCache << std::endl;
-					} else {
-						std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-						changeBlocks (memory, cache, blockCache, blockMemory);
-					}
-
-				} else if (instruction.compare("Write") == 0) {
-
-					content = std::stoi (commandAux[2]);
-
-					blockCache = (word / memory.wordsPerBlocks) % cache.lines;
-					blockMemory = word / memory.wordsPerBlocks;
-					rest = word % memory.wordsPerBlocks;
-
-					if (cache.elements[blockCache][rest] == word) {
-						std::cout << "HIT - Linha " << blockCache << std::endl;
-					} else {
-						std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-						changeBlocks (memory, cache, blockCache, blockMemory);
-					}
-
-				} else if (instruction.compare("Show") == 0) {
-					cache.showCache (cache, memory);
-					memory.showMemory (memory);
-				}
-
-			}
-			break;
-		/// Fully Associative
-		case 2: 
-			switch (memory.replacementPolicy) {
-				/// Random
-				case 1:
-					while (std::getline (std::cin, instruction)) {
-
-						begin = 0;
-						end = cache.elements.size ();
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-
-						if (instruction.compare ("Read") == 0) {
-
-							/// Search inside the cache
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state == true) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								state = false;
-							} else { 	//!< Find the first available position in the cache
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state == true) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								} else {
-									srand (time(NULL));
-									blockCache = rand () % cache.lines;
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								}
-
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								state = false;
-							} else { 	//!< Find the first available position in the cache
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								} else {
-									srand (time(NULL));
-									blockCache = rand () % cache.lines;
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// FIFO
-				case 2: 
-					while (std::getline (std::cin, instruction)) {
-
-						begin = 0;
-						end = cache.elements.size ();
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-
-						if (instruction.compare ("Read") == 0) {
-
-							/// Search inside the cache
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state == true) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								state = false;
-							} else {
-								changeBlocks (memory, cache, blockCacheAux % cache.lines, blockMemory);
-								std::cout << "MISS - Alocado na linha " << (blockCacheAux % cache.lines) << " - Bloco " << blockMemory << " substituído." << std::endl;
-								blockCacheAux = blockCacheAux + 1;
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								state = false;
-							} else {
-								changeBlocks (memory, cache, blockCacheAux % cache.lines, blockMemory);
-								std::cout << "MISS - Alocado na linha " << (blockCacheAux % cache.lines) << " - Bloco " << blockMemory << " substituído." << std::endl;
-								blockCacheAux = blockCacheAux + 1;
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// LFU
-				case 3:
-					/// Initiate the counter for LFU Policy
-					for (int i = 0; i < cache.lines; i++) {
-						cache.count.push_back(0);
-					}
-					/// Gets the Instructions
-					while (std::getline (std::cin, instruction)) {
-
-						begin = 0;
-						end = cache.elements.size ();
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-
-						if (instruction.compare ("Read") == 0) {
-
-							/// Search inside the cache
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state == true) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								cache.count[blockCache] = cache.count[blockCache] + 1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state == true) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								} else {
-									blockCache = cache.findLeastFrequentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								cache.count[blockCache] = cache.count[blockCache] + 1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								} else {
-									blockCache = cache.findLeastFrequentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// LRU
-				case 4:
-					/// Initiate the counter for LRU Policy
-					for (int i = 0; i < cache.lines; i++) {
-						cache.count.push_back(0);
-					}
-
-					while (std::getline (std::cin, instruction)) {
-
-						begin = 0;
-						end = cache.elements.size ();
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-
-						if (instruction.compare ("Read") == 0) {
-
-							/// Search inside the cache
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state == true) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								cache.count[blockCache] = -1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state == true) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								} else {
-									blockCache = cache.findLeastRecentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-							cache.changeLeastRecentlyUsed (cache);
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								cache.count[blockCache] = -1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								} else {
-									blockCache = cache.findLeastRecentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-							cache.changeLeastRecentlyUsed (cache);
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-
-			} break;
-		/// Set Associative
-		case 3:
-			switch (memory.replacementPolicy) {
-				/// Random
-				case 1:
-					while (std::getline (std::cin, instruction)) {
-
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-						sizeWay = cache.lines / memory.setSize;
-						blockWay = blockMemory % memory.setSize;
-						begin = (blockWay * sizeWay);
-						end = begin + sizeWay;
-
-						if (instruction.compare ("Read") == 0) {
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								state = false;
-							} else { 	//!< Find the first available position in the cache
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									state = false;
-								} else {
-									srand (time(NULL));
-									blockCache = rand () % cache.lines;
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								state = false;
-							} else { 	//!< Find the first available position in the cache
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									state = false;
-								} else {
-									srand (time(NULL));
-									blockCache = rand () % cache.lines;
-									changeBlocks (memory, cache, blockCache, blockMemory);
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// FIFO
-				case 2:
-					while (std::getline (std::cin, instruction)) {
-
-						/// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-						sizeWay = cache.lines / memory.setSize;
-						blockWay = blockMemory % memory.setSize;
-						begin = (blockWay * sizeWay);
-						end = begin + sizeWay;
-
-						if (instruction.compare ("Read") == 0) {
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								state = false;
-							} else {
-								changeBlocks (memory, cache, (begin + blockCacheSets[blockWay] % sizeWay), blockMemory);
-								std::cout << "MISS - Alocado na linha " << (begin + blockCacheSets[blockWay] % sizeWay) << " - Bloco " << blockMemory << " substituído." << std::endl;
-								blockCacheSets[blockWay] = blockCacheSets[blockWay] + 1;
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								state = false;
-							} else {
-								changeBlocks (memory, cache, (begin + blockCacheSets[blockWay] % sizeWay), blockMemory);
-								std::cout << "MISS - Alocado na linha " << (begin + blockCacheSets[blockWay] % sizeWay) << " - Bloco " << blockMemory << " substituído." << std::endl;
-								blockCacheSets[blockWay] = blockCacheSets[blockWay] + 1;
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// LFU
-				case 3: 
-					for (int i = 0; i < cache.lines; i++) {
-						cache.count.push_back(0);
-					}
-					while (std::getline (std::cin, instruction)) {
-						// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-						sizeWay = cache.lines / memory.setSize;
-						blockWay = blockMemory % memory.setSize;
-						begin = (blockWay * sizeWay);
-						end = begin + sizeWay;
-
-						if (instruction.compare ("Read") == 0) {
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								cache.count[blockCache] = cache.count[blockCache] + 1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								} else {
-									blockCache = cache.findLeastFrequentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								cache.count[blockCache] = cache.count[blockCache] + 1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								} else {
-									blockCache = cache.findLeastFrequentlyUsed (cache);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = 1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-				/// LRU
-				case 4: 
-					for (int i = 0; i < cache.lines; i++) {
-						cache.count.push_back(0);
-					}
-					while (std::getline (std::cin, instruction)) {
-						// Gets the command
-						found = instruction.find (" ");
-
-						if (found != std::string::npos){
-
-							std::istringstream buf(instruction);
-							std::istream_iterator <std::string> beg(buf), end;
-
-							std::vector<std::string> commandAuxTemp (beg, end);
-
-							commandAux = commandAuxTemp;
-
-							instruction = commandAux[0];
-
-							word = std::stoi (commandAux[1]);
-
-						}
-
-						blockMemory = word / memory.wordsPerBlocks;
-						sizeWay = cache.lines / memory.setSize;
-						blockWay = blockMemory % memory.setSize;
-						begin = (blockWay * sizeWay);
-						end = begin + sizeWay;
-
-						if (instruction.compare ("Read") == 0) {
-
-							/// Search inside the cache
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << std::endl;
-								cache.count[blockCache] = -1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								} else {
-									blockCache = cache.findLeastRecentlyUsedSets (cache, begin, end);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-							cache.changeLeastRecentlyUsedSets (cache, begin, end);
-
-						} else if (instruction.compare ("Write") == 0) {
-
-							content = std::stoi (commandAux[2]);
-
-							state = findWord (cache, word, blockCache, begin, end);
-
-							if (state) {
-								std::cout << "HIT - Linha " << blockCache << " - Novo valor do endereço " << word << " = " << content << std::endl;
-								cache.count[blockCache] = -1;
-								state = false;
-							} else {
-
-								state = findWord (cache, -1, blockCache, begin, end);
-
-								if (state) {
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								} else {
-									blockCache = cache.findLeastRecentlyUsedSets (cache, begin, end);
-									changeBlocks (memory, cache, blockCache, blockMemory);
-									cache.count[blockCache] = -1;
-								}
-								std::cout << "MISS - Alocado na linha " << blockCache << " - Bloco " << blockMemory << " substituído." << std::endl;
-
-							}
-
-							cache.changeLeastRecentlyUsedSets (cache, begin, end);
-
-						} else if (instruction.compare ("Show") == 0) {
-							cache.showCache (cache, memory);
-							memory.showMemory (memory);
-						}
-
-					} break;
-
-			} break;
-
-	}
-
-	file.close ();
-	return 0;
-
+#include "../include/directed.h"
+#include "../include/fully.h"
+#include "../include/setAssociative.h"
+
+int main(int argc, char * argv[]) {
+    /// Reads the configuratio file
+    std::ifstream file;
+    // file.open ("./data/Girao_DIRETO.txt");
+    // file.open ("./data/Girao_PARCIAL.txt");
+    file.open("./data/Girao_TOTAL.txt");
+
+    /// Sets the parameters
+    Memory <int> memory;
+    Cache <int> cache;
+    Directed <int> directed;
+    Fully <int> fully;
+    SetAssociative <int> set;
+
+    file >> memory.wordsPerBlocks >> cache.lines >>
+            memory.memorySize >> memory.mapping >>
+            memory.setSize >> memory.replacementPolicy;
+
+    cache.wordsPerBlocks = memory.wordsPerBlocks;
+
+    /// Creates the objects
+    memory.createMemory(memory);
+    cache.createCache(cache);
+
+    /// Variables
+    std::string instruction, command;
+    std::size_t found;
+    int word = 0, content = 0, blockCache = 0,
+        blockMemory = 0, rest = 0, sizeWay = 0,
+        blockWay = 0, begin = 0, end = 0, blockCacheAux = 0;
+    bool state = false;
+
+    std::vector<std::string> commandAux;
+
+    /// Counter for LFU and LRU policy
+    std::vector<int> blockCacheSets(memory.setSize, 0);
+
+    /// Using the mapping informed
+    switch (memory.mapping) {
+        /// Directed-Mapped
+        case 1:
+            /// Gets the commando from the user
+            while (std::getline(std::cin, instruction)) {
+                /// Gets the command
+                directed.readInstruction(cache, memory, begin, end,
+                                         blockMemory, word, found,
+                                         instruction, commandAux);
+                /// Reading the command
+                if (instruction.compare("Read") == 0) {
+                    directed.read(cache, memory, blockCache,
+                                  blockMemory, word, rest);
+                } else if (instruction.compare("Write") == 0) {
+                    directed.write(cache, memory, blockCache,
+                                   blockMemory, word, rest);
+                } else if (instruction.compare("Show") == 0) {
+                    cache.showCache(cache, memory);
+                    memory.showMemory(memory);
+                }
+            }
+            break;
+        /// Fully Associative
+        case 2:
+            switch (memory.replacementPolicy) {
+                /// Random
+                case 1:
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        fully.readInstruction(cache, memory, begin, end,
+                                              blockMemory, word, found,
+                                              instruction, commandAux);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            fully.readRandom(cache, memory, blockCache,
+                                             blockMemory, word, begin,
+                                             end, state);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            fully.writeRandom(cache, memory, blockCache,
+                                              blockMemory, word, begin,
+                                              end, state, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// FIFO
+                case 2:
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        fully.readInstruction(cache, memory, begin, end,
+                                               blockMemory, word, found,
+                                               instruction, commandAux);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            fully.readFIFO(cache, memory, blockCache,
+                                           blockMemory, word, begin,
+                                           end, state, blockCacheAux);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            fully.writeFIFO(cache, memory, blockCache,
+                                            blockMemory, word, begin,
+                                            end, state, content, blockCacheAux);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// LFU
+                case 3:
+                    /// Initiate the counter for LFU Policy
+                    for (int i = 0; i < cache.lines; i++) {
+                        cache.count.push_back(0);
+                    }
+                    /// Gets the Instructions
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        fully.readInstruction(cache, memory, begin, end,
+                                              blockMemory, word, found,
+                                              instruction, commandAux);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            fully.readLFU(cache, memory, blockCache,
+                                          blockMemory, word, begin,
+                                          end, state);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            fully.writeLFU(cache, memory, blockCache,
+                                           blockMemory, word, begin,
+                                           end, state, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// LRU
+                case 4:
+                    /// Initiate the counter for LRU Policy
+                    for (int i = 0; i < cache.lines; i++) {
+                        cache.count.push_back(0);
+                    }
+
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        fully.readInstruction(cache, memory, begin, end,
+                                              blockMemory, word, found,
+                                              instruction, commandAux);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            fully.readLRU(cache, memory, blockCache,
+                                          blockMemory, word, begin, end, state);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            fully.writeLRU(cache, memory, blockCache,
+                                           blockMemory, word, begin,
+                                           end, state, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+            } break;
+        /// Set Associative
+        case 3:
+            switch (memory.replacementPolicy) {
+                /// Random
+                case 1:
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        set.readInstruction(cache, memory, begin, end,
+                                            blockMemory, word, found,
+                                            instruction, commandAux,
+                                            sizeWay, blockWay);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            set.readRandom(cache, memory, blockCache,
+                                           blockMemory, word, begin,
+                                           end, state);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            set.writeRandom(cache, memory, blockCache,
+                                            blockMemory, word, begin,
+                                            end, state, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// FIFO
+                case 2:
+                    while (std::getline(std::cin, instruction)) {
+                        /// Gets the command
+                        set.readInstruction(cache, memory, begin,
+                                            end, blockMemory, word,
+                                            found, instruction, commandAux,
+                                            sizeWay, blockWay);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            set.readFIFO(cache, memory, blockCache,
+                                         blockMemory, word, begin,
+                                         end, state, sizeWay,
+                                         blockWay, blockCacheSets);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            set.writeFIFO(cache, memory, blockCache,
+                                          blockMemory, word, begin,
+                                          end, state, sizeWay,
+                                          blockWay, blockCacheSets, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// LFU
+                case 3:
+                    for (int i = 0; i < cache.lines; i++) {
+                        cache.count.push_back(0);
+                    }
+                    while (std::getline(std::cin, instruction)) {
+                        // Gets the command
+                        set.readInstruction(cache, memory, begin, end,
+                                            blockMemory, word, found,
+                                            instruction, commandAux,
+                                            sizeWay, blockWay);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            set.readLFU(cache, memory, blockCache,
+                                        blockMemory, word, begin,
+                                        end, state, sizeWay,
+                                        blockWay, blockCacheSets);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            set.writeLFU(cache, memory, blockCache,
+                                         blockMemory, word, begin,
+                                         end, state, sizeWay,
+                                         blockWay, blockCacheSets, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+                /// LRU
+                case 4:
+                    for (int i = 0; i < cache.lines; i++) {
+                        cache.count.push_back(0);
+                    }
+                    while (std::getline(std::cin, instruction)) {
+                        // Gets the command
+                        set.readInstruction(cache, memory, begin, end,
+                                            blockMemory, word, found,
+                                            instruction, commandAux,
+                                            sizeWay, blockWay);
+                        /// Reading the command
+                        if (instruction.compare("Read") == 0) {
+                            set.readLRU(cache, memory, blockCache,
+                                        blockMemory, word, begin,
+                                        end, state, sizeWay,
+                                        blockWay, blockCacheSets);
+                        } else if (instruction.compare("Write") == 0) {
+                            content = std::stoi(commandAux[2]);
+                            set.writeLRU(cache, memory, blockCache,
+                                         blockMemory, word, begin,
+                                         end, state, sizeWay,
+                                         blockWay, blockCacheSets, content);
+                        } else if (instruction.compare("Show") == 0) {
+                            cache.showCache(cache, memory);
+                            memory.showMemory(memory);
+                        }
+                    } break;
+            } break;
+    }
+
+    file.close();
+    return 0;
 }
