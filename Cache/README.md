@@ -42,4 +42,36 @@ To run the program use the following code:
 
 `user@user-pc:~/Cache$ bin/simulator `
 
+### Google Test Framework ###
+
+Google test is a framework for writing C++ unit tests
+
+### Installing Google Test ###
+
+Start by installing the gtest development package:
+`sudo apt-get install libgtest-dev`
+
+Install **cmake**:
+`sudo apt-get install cmake`
+
+And then go to folder where the **Google Test** was installed, it should be at /usr/src/gtest:
+
+`cd /usr/src/gtest`
+
+Then do the following code to end the installing process:
+```
+"sudo cmake CMakeLists.txt"
+"sudo make"
+"sudo cp *.a /usr/lib"
+```
+### Executing the test file ###
+
+To execute the test file go to the `/test` folder then do the following code:
+
+```
+"user@user-pc:~/Cache/test$ sudo cmake CMakeLists.txt"
+"user@user-pc:~/Cache/test$ make"
+"user@user-pc:~/Cache/test$ ./runTests"
+```
+
 This codes were made by RAYAN AVELINO.

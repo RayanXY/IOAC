@@ -26,8 +26,8 @@ template <typename T> class Directed {
          * @param word - The word that must been find
          * @param rest - An auxilliar variable
          */
-        void read(Cache <T> &cache, Memory <T> &memory, T blockCache,
-                  T blockMemory, T word, T rest) {
+        void read(Cache <T> &cache, Memory <T> &memory, T &blockCache,
+                  T &blockMemory, T &word, T &rest) {
             /// Defines where to store the command
             blockCache = (word / memory.wordsPerBlocks) % cache.lines;
             blockMemory = word / memory.wordsPerBlocks;
@@ -56,7 +56,7 @@ template <typename T> class Directed {
          * @param rest - An auxilliar variable
          */
         void write(Cache <T> &cache, Memory <T> &memory,
-                   T blockCache, T blockMemory, T word, T rest) {
+                   T &blockCache, T &blockMemory, T &word, T &rest) {
             /// Defines where to store the command
             blockCache = (word / memory.wordsPerBlocks) % cache.lines;
             blockMemory = word / memory.wordsPerBlocks;
@@ -85,9 +85,8 @@ template <typename T> class Directed {
          * @param instruction - The instruction passed by the user
          * @param commandAux - An auxilliar vector to help separate the instruction
          */
-        void readInstruction(Cache <T> &cache, Memory <T> &memory,
-                             T begin, T end, T blockMemory, T word,
-                             std::size_t found, std::string instruction,
+        void readInstruction(std::size_t found, std::string &instruction,
+                             T end, T &word,
                              std::vector<std::string> commandAux) {
             found = instruction.find(" ");
 

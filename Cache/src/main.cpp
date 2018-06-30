@@ -17,9 +17,9 @@
 int main(int argc, char * argv[]) {
     /// Reads the configuratio file
     std::ifstream file;
-    // file.open ("./data/Girao_DIRETO.txt");
-    // file.open ("./data/Girao_PARCIAL.txt");
-    file.open("./data/Girao_TOTAL.txt");
+    file.open("./data/Girao_DIRETO.txt");
+    // file.open("./data/Girao_PARCIAL.txt");
+    // file.open("./data/Girao_TOTAL.txt");
 
     /// Sets the parameters
     Memory <int> memory;
@@ -58,9 +58,8 @@ int main(int argc, char * argv[]) {
             /// Gets the commando from the user
             while (std::getline(std::cin, instruction)) {
                 /// Gets the command
-                directed.readInstruction(cache, memory, begin, end,
-                                         blockMemory, word, found,
-                                         instruction, commandAux);
+                directed.readInstruction(found, instruction,
+                                         end, word, commandAux);
                 /// Reading the command
                 if (instruction.compare("Read") == 0) {
                     directed.read(cache, memory, blockCache,

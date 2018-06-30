@@ -29,8 +29,8 @@ template <typename T> class Fully {
          * @param state - True if it finds the word and False when not
          */
         void readRandom(Cache <T> &cache, Memory <T> &memory,
-                        T blockCache, T blockMemory, T word,
-                        T begin, T end, bool state) {
+                        T &blockCache, T &blockMemory, T &word,
+                        T &begin, T &end, bool &state) {
              /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -77,8 +77,8 @@ template <typename T> class Fully {
          * @param content - The new value to be stored
          */
         void writeRandom(Cache <T> &cache, Memory <T> &memory,
-                         T blockCache, T blockMemory, T word,
-                         T begin, T end, bool state, T content) {
+                         T &blockCache, T &blockMemory, T &word,
+                         T &begin, T &end, bool &state, T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -125,8 +125,8 @@ template <typename T> class Fully {
          * @param blockCacheAux - An auxilliar variable that helps with new address in the cache
          */
         void readFIFO(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T blockCacheAux) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &blockCacheAux) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -164,9 +164,9 @@ template <typename T> class Fully {
          * @param blockCacheAux - An auxilliar variable that helps with new address in the cache
          */
         void writeFIFO(Cache <T> &cache, Memory <T> &memory,
-                        T blockCache, T blockMemory, T word,
-                        T begin, T end, bool state,
-                        T content, T blockCacheAux) {
+                        T &blockCache, T &blockMemory, T &word,
+                        T &begin, T &end, bool &state,
+                        T &content, T &blockCacheAux) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -204,8 +204,8 @@ template <typename T> class Fully {
          * @param state - True if it finds the word and False when not
          */
         void readLFU(Cache <T> &cache, Memory <T> &memory,
-                      T blockCache, T blockMemory, T word,
-                      T begin, T end, bool state) {
+                      T &blockCache, T &blockMemory, T &word,
+                      T &begin, T &end, bool &state) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -252,8 +252,8 @@ template <typename T> class Fully {
          * @param content - The new value to be stored
          */
         void writeLFU(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T content) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -301,8 +301,8 @@ template <typename T> class Fully {
          * @param state - True if it finds the word and False when not
          */
         void readLRU(Cache <T> &cache, Memory <T> &memory,
-                      T blockCache, T blockMemory, T word,
-                      T begin, T end, bool state) {
+                      T &blockCache, T &blockMemory, T &word,
+                      T &begin, T &end, bool &state) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                               begin, end);
@@ -351,8 +351,8 @@ template <typename T> class Fully {
          * @param content - The new value to be stored
          */
         void writeLRU(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T content) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -401,9 +401,9 @@ template <typename T> class Fully {
          * @param commandAux - An auxilliar vector to help separate the instruction
          */
         void readInstruction(Cache <T> &cache, Memory <T> &memory,
-                              T begin, T end, T blockMemory, T word,
-                              std::size_t found, std::string instruction,
-                              std::vector<std::string> commandAux) {
+                              T &begin, T &end, T &blockMemory, T &word,
+                              std::size_t &found, std::string &instruction,
+                              std::vector<std::string> &commandAux) {
             begin = 0;
             end = cache.elements.size();
             found = instruction.find(" ");

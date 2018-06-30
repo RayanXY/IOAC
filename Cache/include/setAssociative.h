@@ -29,8 +29,8 @@ template <typename T> class SetAssociative {
          * @param state - True if it finds the word and False when not
          */
         void readRandom(Cache <T> &cache, Memory <T> &memory,
-                         T blockCache, T blockMemory, T word,
-                         T begin, T end, bool state) {
+                         T &blockCache, T &blockMemory, T &word,
+                         T &begin, T &end, bool &state) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -77,8 +77,8 @@ template <typename T> class SetAssociative {
          * @param content - The new value to be stored
          */
         void writeRandom(Cache <T> &cache, Memory <T> &memory,
-                          T blockCache, T blockMemory, T word,
-                          T begin, T end, bool state, T content) {
+                          T &blockCache, T &blockMemory, T &word,
+                          T &begin, T &end, bool &state, T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -129,9 +129,9 @@ template <typename T> class SetAssociative {
          * @param blockCacheSets - The vector that stores the sets that will be replaced
          */
         void readFIFO(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T sizeWay,
-                       T blockWay, std::vector<T> blockCacheSets) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &sizeWay,
+                       T &blockWay, std::vector<T> &blockCacheSets) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -171,10 +171,10 @@ template <typename T> class SetAssociative {
          * @param content - The new value to be stored
          */
         void writeFIFO(Cache <T> &cache, Memory <T> &memory,
-                        T blockCache, T blockMemory, T word,
-                        T begin, T end, bool state, T sizeWay,
-                        T blockWay, std::vector<T> blockCacheSets,
-                        T content) {
+                        T &blockCache, T &blockMemory, T &word,
+                        T &begin, T &end, bool &state, T &sizeWay,
+                        T &blockWay, std::vector<T> &blockCacheSets,
+                        T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -215,9 +215,9 @@ template <typename T> class SetAssociative {
          * @param blockCacheSets - The vector that stores the sets that will be replaced
          */
         void readLFU(Cache <T> &cache, Memory <T> &memory,
-                      T blockCache, T blockMemory, T word,
-                      T begin, T end, bool state, T sizeWay,
-                      T blockWay, std::vector<T> blockCacheSets) {
+                      T &blockCache, T &blockMemory, T &word,
+                      T &begin, T &end, bool &state, T &sizeWay,
+                      T &blockWay, std::vector<T> &blockCacheSets) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -267,10 +267,10 @@ template <typename T> class SetAssociative {
          * @param content - The new value to be stored
          */
         void writeLFU(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T sizeWay,
-                       T blockWay, std::vector<T> blockCacheSets,
-                       T content) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &sizeWay,
+                       T &blockWay, std::vector<T> &blockCacheSets,
+                       T &content) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -288,7 +288,7 @@ template <typename T> class SetAssociative {
 
                 if (state) {
                     changeBlocks(memory, cache,
-                                  blockCache, blockMemory);
+                                 blockCache, blockMemory);
                     cache.count[blockCache] = 1;
                 } else {
                     blockCache = cache.findLeastFrequentlyUsed(cache);
@@ -321,9 +321,9 @@ template <typename T> class SetAssociative {
          * @param blockCacheSets - The vector that stores the sets that will be replaced
          */
         void readLRU(Cache <T> &cache, Memory <T> &memory,
-                      T blockCache, T blockMemory, T word,
-                      T begin, T end, bool state, T sizeWay,
-                      T blockWay, std::vector<T> blockCacheSets) {
+                      T &blockCache, T &blockMemory, T &word,
+                      T &begin, T &end, bool &state, T &sizeWay,
+                      T &blockWay, std::vector<T> &blockCacheSets) {
             /// Search inside the cache
             state = findWord(cache, word, blockCache,
                              begin, end);
@@ -375,10 +375,10 @@ template <typename T> class SetAssociative {
          * @param content - The new value to be stored
          */
         void writeLRU(Cache <T> &cache, Memory <T> &memory,
-                       T blockCache, T blockMemory, T word,
-                       T begin, T end, bool state, T sizeWay,
-                       T blockWay, std::vector<T> blockCacheSets,
-                       T content) {
+                       T &blockCache, T &blockMemory, T &word,
+                       T &begin, T &end, bool &state, T &sizeWay,
+                       T &blockWay, std::vector<T> &blockCacheSets,
+                       T &content) {
             state = findWord(cache, word, blockCache,
                              begin, end);
 
@@ -426,10 +426,10 @@ template <typename T> class SetAssociative {
          * @param commandAux - An auxilliar vector to help separate the instruction
          */
         void readInstruction(Cache <T> &cache, Memory <T> &memory,
-                              T begin, T end, T blockMemory, T word,
-                              std::size_t found, std::string instruction,
-                              std::vector<std::string> commandAux,
-                              T sizeWay, T blockWay) {
+                              T &begin, T &end, T &blockMemory, T &word,
+                              std::size_t found, std::string &instruction,
+                              std::vector<std::string> &commandAux,
+                              T &sizeWay, T &blockWay) {
             found = instruction.find(" ");
 
             if (found != std::string::npos) {

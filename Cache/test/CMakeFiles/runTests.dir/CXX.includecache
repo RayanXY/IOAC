@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/rayan/Codes/IOAC/Cache/include/cache.h
+memory.h
+/home/rayan/Codes/IOAC/Cache/include/memory.h
+
+/home/rayan/Codes/IOAC/Cache/include/memory.h
+iostream
+-
+vector
+-
+
+/home/rayan/Codes/IOAC/Cache/test/tests.cpp
+gtest/gtest.h
+-
+iostream
+-
+sstream
+-
+fstream
+-
+../include/cache.h
+/home/rayan/Codes/IOAC/Cache/include/cache.h
+../include/memory.h
+/home/rayan/Codes/IOAC/Cache/include/memory.h
+
